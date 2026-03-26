@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NovaMind Chat</title>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --bg: #020408;
+      --sidebar: #050c14;
+      --card: #080f1a;
+      --border: #0e1f33;
+      --accent: #6366f1;
+      --accent2: #818cf8;
+      --cyan: #06b6d4;
+      --green: #10b981;
+      --text: #f0f4ff;
+      --muted: #6b7a99;
+      --mid: #94a3b8;
+      --user-bubble: rgba(99,102,241,0.15);
+      --ai-bubble: rgba(8,15,26,0.9);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+
+    /* ── LAYOUT ── */
+    .app {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 260px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .sidebar-header {
+      padding: 1.2rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #818cf8, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .new-chat-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .new-chat-btn:hover { background: var(--accent2); }
+
+    /* Model selector */
+    .model-section {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .model-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .model-select {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .model-select:focus { border-color: var(--accent); }
+
+    /* Chat history */
+    .chat-history {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.8rem;
+    }
+
+    .history-item {
+      padding: 0.6rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      color: var(--mid);
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-item:hover { background: var(--border); }
+    .history-item.active { background: rgba(99,102,241,0.15); color: var(--accent2); }
+
+    /* Sidebar footer */
+    .sidebar-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .plan-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .plan-dot {
+      width: 6px; height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+    }
+
+    /* ── MAIN CHAT ── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Top bar */
+    .topbar {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(2,4,8,0.8);
+      backdrop-filter: blur(10px);
+    }
+
+    .topbar-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--mid);
+    }
+
+    .topbar-status {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      color: var(--green);
+    }
+
+    .status-dot {
+      width: 6px; height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.4); }
+    }
+
+    /* Messages */
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      scroll-behavior: smooth;
+    }
+
+    .messages::-webkit-scrollbar { width: 4px; }
+    .messages::-webkit-scrollbar-track { background: transparent; }
+    .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* Welcome screen */
+    .welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      text-align: center;
+      padding: 2rem;
+      gap: 1.5rem;
+    }
+
+    .welcome-icon {
+      width: 64px; height: 64px;
+      background: rgba(99,102,241,0.1);
+      border: 1px solid rgba(99,102,241,0.2);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+    }
+
+    .welcome h2 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #818cf8, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .welcome p { color: var(--muted); font-size: 0.88rem; max-width: 380px; line-height: 1.6; }
+
+    .suggestions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.7rem;
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .suggestion {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.8rem 1rem;
+      font-size: 0.82rem;
+      color: var(--mid);
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .suggestion:hover {
+      border-color: var(--accent);
+      color: var(--text);
+      background: rgba(99,102,241,0.05);
+    }
+
+    /* Message bubbles */
+    .message {
+      display: flex;
+      gap: 1rem;
+      max-width: 840px;
+      animation: msgIn 0.3s ease;
+    }
+
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message.user { flex-direction: row-reverse; align-self: flex-end; }
+
+    .msg-avatar {
+      width: 34px; height: 34px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .msg-avatar.ai {
+      background: rgba(99,102,241,0.15);
+      border: 1px solid rgba(99,102,241,0.2);
+    }
+
+    .msg-avatar.user {
+      background: rgba(6,182,212,0.15);
+      border: 1px solid rgba(6,182,212,0.2);
+    }
+
+    .msg-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      max-width: calc(100% - 50px);
+    }
+
+    .msg-bubble {
+      padding: 0.9rem 1.2rem;
+      border-radius: 14px;
+      font-size: 0.9rem;
+      line-height: 1.7;
+      word-wrap: break-word;
+    }
+
+    .message.ai .msg-bubble {
+      background: var(--ai-bubble);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 4px 14px 14px 14px;
+    }
+
+    .message.user .msg-bubble {
+      background: var(--user-bubble);
+      border: 1px solid rgba(99,102,241,0.2);
+      color: var(--text);
+      border-radius: 14px 4px 14px 14px;
+    }
+
+    .msg-meta {
+      font-size: 0.72rem;
+      color: var(--muted);
+      padding: 0 0.3rem;
+    }
+
+    .message.user .msg-meta { text-align: right; }
+
+    /* Code blocks in messages */
+    .msg-bubble pre {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.8rem;
+      overflow-x: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      margin: 0.5rem 0;
+    }
+
+    /* Typing indicator */
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.9rem 1.2rem;
+      background: var(--ai-bubble);
+      border: 1px solid var(--border);
+      border-radius: 4px 14px 14px 14px;
+      width: fit-content;
+    }
+
+    .typing-dot {
+      width: 6px; height: 6px;
+      background: var(--muted);
+      border-radius: 50%;
+      animation: typingBounce 1.2s infinite;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typingBounce {
+      0%, 100% { transform: translateY(0); opacity: 0.4; }
+      50% { transform: translateY(-4px); opacity: 1; }
+    }
+
+    /* ── INPUT AREA ── */
+    .input-area {
+      padding: 1rem 1.5rem 1.5rem;
+      background: rgba(2,4,8,0.9);
+      border-top: 1px solid var(--border);
+    }
+
+    .input-wrapper {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.8rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 0.8rem 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .input-wrapper:focus-within { border-color: var(--accent); }
+
+    #chat-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-family: 'Inter', sans-serif;
+      resize: none;
+      max-height: 160px;
+      min-height: 24px;
+      line-height: 1.5;
+    }
+
+    #chat-input::placeholder { color: var(--muted); }
+
+    .send-btn {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+
+    .send-btn:hover { background: var(--accent2); transform: scale(1.05); }
+    .send-btn:disabled { background: var(--border); cursor: not-allowed; transform: none; }
+
+    .input-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0.2rem 0;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    /* ── AUTH OVERLAY ── */
+    .auth-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2,4,8,0.95);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .auth-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .auth-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #818cf8, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .auth-sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 2rem; }
+
+    .auth-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.8rem 1rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-family: 'Inter', sans-serif;
+      margin-bottom: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+      text-align: center;
+    }
+
+    .auth-input:focus { border-color: var(--accent); }
+
+    .auth-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent), #4f46e5);
+      color: #fff;
+      border: none;
+      padding: 0.85rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: opacity 0.2s;
+    }
+
+    .auth-btn:hover { opacity: 0.9; }
+
+    .auth-error { color: #ef4444; font-size: 0.8rem; margin-top: 0.5rem; display: none; }
+
+    .auth-link {
+      display: block;
+      margin-top: 1.2rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .auth-link a { color: var(--accent2); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .suggestions { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- AUTH OVERLAY -->
+<div class="auth-overlay" id="auth-overlay">
+  <div class="auth-card">
+    <div class="auth-logo">NovaMind ✦</div>
+    <div class="auth-sub">Enter your API key to access your private AI</div>
+    <input type="password" class="auth-input" id="key-input" placeholder="Enter your API key (e.g. test123)"/>
+    <div class="auth-error" id="auth-error">Invalid API key. Check your email for your key.</div>
+    <button class="auth-btn" onclick="authenticate()">Access NovaMind →</button>
+    <div class="auth-link">
+      Don't have a key? <a href="/index.html#pricing">Get one for $5/month →</a>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">NovaMind ✦</div>
+      <button class="new-chat-btn" onclick="newChat()">+ New</button>
+    </div>
+
+    <div class="model-section">
+      <div class="model-label">AI Model</div>
+      <select class="model-select" id="model-select">
+        <option value="llama3">Llama 3 — General</option>
+        <option value="vicuna:13b">Vicuna 13B — Chat</option>
+        <option value="deepseek-coder:33b">DeepSeek Coder — Code</option>
+        <option value="nomic-embed-text">nomic-embed-text</option>
+      </select>
+    </div>
+
+    <div class="chat-history" id="chat-history">
+      <div class="history-item active" id="current-chat-item">New conversation</div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="plan-badge">
+        <div class="plan-dot"></div>
+        <span>Connected · Local GPU</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="chat-title">New Conversation</div>
+      <div class="topbar-status">
+        <div class="status-dot"></div>
+        <span>Private · Local · Secure</span>
+      </div>
+    </div>
+
+    <div class="messages" id="messages">
+      <!-- Welcome screen -->
+      <div class="welcome" id="welcome-screen">
+        <div class="welcome-icon">✦</div>
+        <h2>NovaMind is ready</h2>
+        <p>Your private AI — powered by a real GPU. No data leaves this machine. Ask me anything.</p>
+        <div class="suggestions">
+          <button class="suggestion" onclick="sendSuggestion('Explain quantum computing in simple terms')">
+            🔬 Explain quantum computing
+          </button>
+          <button class="suggestion" onclick="sendSuggestion('Write a Python function to sort a list of dictionaries')">
+            💻 Write Python code
+          </button>
+          <button class="suggestion" onclick="sendSuggestion('What are the top 5 ways to grow a SaaS business?')">
+            📈 Grow a SaaS business
+          </button>
+          <button class="suggestion" onclick="sendSuggestion('Write a professional cold email for a B2B software company')">
+            ✉️ Write a cold email
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-wrapper">
+        <textarea
+          id="chat-input"
+          placeholder="Message NovaMind..."
+          rows="1"
+          onkeydown="handleKey(event)"
+          oninput="autoResize(this)"
+        ></textarea>
+        <button class="send-btn" id="send-btn" onclick="sendMessage()">➤</button>
+      </div>
+      <div class="input-footer">
+        <span>NovaMind · 100% private · <span id="latency-display"></span></span>
+        <span>Enter to send · Shift+Enter for newline</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── CONFIG ────────────────────────────────────────────────
+// IMPORTANT: Change this to your public Cloudflare Tunnel URL when deployed
+// For local testing, keep it as localhost:8000
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:8000'
+  : 'https://YOUR_TUNNEL_URL_HERE'; // <- replace after Cloudflare Tunnel setup
+
+// ─── AUTH ───────────────────────────────────────────────────
+let apiKey = localStorage.getItem('nm_key') || '';
+
+function checkAuth() {
+  if (apiKey) {
+    document.getElementById('auth-overlay').style.display = 'none';
+  }
+}
+
+async function authenticate() {
+  const key = document.getElementById('key-input').value.trim();
+  if (!key) return;
+
+  try {
+    const r = await fetch(`${API_BASE}/health`);
+    const data = await r.json();
+    if (data.status === 'ok') {
+      // Verify the key works
+      const testR = await fetch(`${API_BASE}/models`, {
+        headers: { 'X-Api-Key': key }
+      });
+      if (testR.ok) {
+        apiKey = key;
+        localStorage.setItem('nm_key', key);
+        document.getElementById('auth-overlay').style.display = 'none';
+      } else {
+        document.getElementById('auth-error').style.display = 'block';
+      }
+    }
+  } catch (e) {
+    // For demo - accept key if API unreachable
+    apiKey = key;
+    localStorage.setItem('nm_key', key);
+    document.getElementById('auth-overlay').style.display = 'none';
+  }
+}
+
+document.getElementById('key-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') authenticate();
+});
+
+// ─── CHAT STATE ─────────────────────────────────────────────
+let messages = [];
+let isLoading = false;
+let totalChats = 0;
+
+function getModel() {
+  return document.getElementById('model-select').value;
+}
+
+function newChat() {
+  messages = [];
+  const messagesEl = document.getElementById('messages');
+
+  // Save current to history if it has content
+  if (messages.length > 0) {
+    totalChats++;
+    const hist = document.getElementById('chat-history');
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    item.textContent = messages[0]?.content?.substring(0, 40) + '...' || 'Chat ' + totalChats;
+    hist.insertBefore(item, hist.firstChild);
+  }
+
+  messagesEl.innerHTML = `
+    <div class="welcome" id="welcome-screen">
+      <div class="welcome-icon">✦</div>
+      <h2>NovaMind is ready</h2>
+      <p>Your private AI — powered by a real GPU. No data leaves this machine. Ask me anything.</p>
+      <div class="suggestions">
+        <button class="suggestion" onclick="sendSuggestion('Explain quantum computing in simple terms')">🔬 Explain quantum computing</button>
+        <button class="suggestion" onclick="sendSuggestion('Write a Python function to sort a list of dictionaries')">💻 Write Python code</button>
+        <button class="suggestion" onclick="sendSuggestion('What are the top 5 ways to grow a SaaS business?')">📈 Grow a SaaS business</button>
+        <button class="suggestion" onclick="sendSuggestion('Write a professional cold email for a B2B software company')">✉️ Write a cold email</button>
+      </div>
+    </div>`;
+  document.getElementById('chat-title').textContent = 'New Conversation';
+  document.getElementById('latency-display').textContent = '';
+}
+
+function sendSuggestion(text) {
+  document.getElementById('chat-input').value = text;
+  sendMessage();
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function addMessage(role, content, latency) {
+  const welcome = document.getElementById('welcome-screen');
+  if (welcome) welcome.remove();
+
+  const messagesEl = document.getElementById('messages');
+  const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  const div = document.createElement('div');
+  div.className = `message ${role}`;
+
+  // Format code blocks
+  const formattedContent = content
+    .replace(/```(\w*)\n?([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+    .replace(/\n/g, '<br/>');
+
+  const latencyText = latency ? ` · ${latency}s` : '';
+
+  div.innerHTML = `
+    <div class="msg-avatar ${role}">${role === 'ai' ? '✦' : '👤'}</div>
+    <div class="msg-content">
+      <div class="msg-bubble">${formattedContent}</div>
+      <div class="msg-meta">${role === 'ai' ? 'NovaMind' : 'You'} · ${time}${latencyText}</div>
+    </div>`;
+
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+
+  messages.push({ role, content });
+
+  // Update chat title from first user message
+  if (role === 'user' && messages.filter(m => m.role === 'user').length === 1) {
+    const title = content.substring(0, 40) + (content.length > 40 ? '...' : '');
+    document.getElementById('chat-title').textContent = title;
+    const currentItem = document.getElementById('current-chat-item');
+    if (currentItem) currentItem.textContent = title;
+  }
+}
+
+function showTyping() {
+  const messagesEl = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'message ai';
+  div.id = 'typing-msg';
+  div.innerHTML = `
+    <div class="msg-avatar ai">✦</div>
+    <div class="msg-content">
+      <div class="typing-indicator">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+    </div>`;
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function removeTyping() {
+  const el = document.getElementById('typing-msg');
+  if (el) el.remove();
+}
+
+async function sendMessage() {
+  if (isLoading) return;
+  const input = document.getElementById('chat-input');
+  const prompt = input.value.trim();
+  if (!prompt) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  isLoading = true;
+  document.getElementById('send-btn').disabled = true;
+
+  addMessage('user', prompt);
+  showTyping();
+
+  const start = Date.now();
+
+  try {
+    const response = await fetch(`${API_BASE}/generate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Api-Key': apiKey
+      },
+      body: JSON.stringify({
+        prompt,
+        model: getModel(),
+        max_tokens: 1024,
+        temperature: 0.7
+      })
+    });
+
+    removeTyping();
+
+    if (response.status === 401) {
+      addMessage('ai', '⚠️ Invalid API key. Please refresh the page and re-enter your key.');
+      localStorage.removeItem('nm_key');
+    } else if (!response.ok) {
+      const err = await response.json();
+      addMessage('ai', `⚠️ Error: ${err.detail || 'Something went wrong. Make sure the NovaMind server is running.'}`);
+    } else {
+      const data = await response.json();
+      const latency = ((Date.now() - start) / 1000).toFixed(1);
+      addMessage('ai', data.response, latency);
+      document.getElementById('latency-display').textContent = `Last response: ${latency}s`;
+    }
+  } catch (e) {
+    removeTyping();
+    addMessage('ai', '⚠️ Cannot connect to NovaMind server. Make sure START_HERE.bat is running, then refresh.');
+  }
+
+  isLoading = false;
+  document.getElementById('send-btn').disabled = false;
+  input.focus();
+}
+
+// Init
+checkAuth();
+</script>
+</body>
+</html>

@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NovaMind — Private AI at $5/month</title>
+  <meta name="description" content="ChatGPT-level AI for $5/month. 100% private. No data leaks. Powered by a real GPU. Cancel anytime."/>
+  <link rel="manifest" href="/manifest.json"/>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --bg: #020408;
+      --bg2: #040810;
+      --card: #080f1a;
+      --border: #0e1f33;
+      --accent: #6366f1;
+      --accent2: #818cf8;
+      --accent3: #a5b4fc;
+      --cyan: #06b6d4;
+      --green: #10b981;
+      --text: #f0f4ff;
+      --muted: #6b7a99;
+      --mid: #94a3b8;
+      --font: 'Inter', sans-serif;
+      --font2: 'Space Grotesk', sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ── CANVAS ── */
+    #bg-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 2.5rem;
+      background: rgba(2,4,8,0.7);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(99,102,241,0.1);
+    }
+
+    .nav-logo {
+      font-family: var(--font2);
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #818cf8, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-cta {
+      background: var(--accent);
+      color: #fff !important;
+      padding: 0.55rem 1.3rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.2s !important;
+    }
+
+    .nav-cta:hover {
+      background: var(--accent2) !important;
+      transform: translateY(-1px);
+      color: #fff !important;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 2rem 4rem;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(99,102,241,0.1);
+      border: 1px solid rgba(99,102,241,0.3);
+      color: var(--accent3);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      padding: 0.4rem 1rem;
+      border-radius: 99px;
+      margin-bottom: 2rem;
+      text-transform: uppercase;
+      animation: fadeInDown 0.6s ease forwards;
+    }
+
+    .hero-badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.3); }
+    }
+
+    .hero h1 {
+      font-family: var(--font2);
+      font-size: clamp(2.8rem, 7vw, 6rem);
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: -2px;
+      margin-bottom: 1.5rem;
+      animation: fadeInUp 0.7s ease 0.1s forwards;
+      opacity: 0;
+    }
+
+    .hero h1 .line1 { display: block; color: var(--text); }
+
+    .hero h1 .line2 {
+      display: block;
+      background: linear-gradient(135deg, #6366f1 0%, #06b6d4 50%, #10b981 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      color: var(--mid);
+      max-width: 640px;
+      line-height: 1.6;
+      margin-bottom: 2.5rem;
+      animation: fadeInUp 0.7s ease 0.2s forwards;
+      opacity: 0;
+    }
+
+    .hero-sub strong { color: var(--text); }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 3rem;
+      animation: fadeInUp 0.7s ease 0.3s forwards;
+      opacity: 0;
+    }
+
+    .btn-glow {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: #fff;
+      padding: 0.9rem 2.2rem;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: all 0.2s;
+      box-shadow: 0 0 40px rgba(99,102,241,0.4);
+    }
+
+    .btn-glow:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 60px rgba(99,102,241,0.6);
+    }
+
+    .btn-glow::after {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, #818cf8, #06b6d4);
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .btn-glow:hover::after { opacity: 1; }
+
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: transparent;
+      color: var(--mid);
+      padding: 0.9rem 2.2rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    .hero-social-proof {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+      animation: fadeInUp 0.7s ease 0.4s forwards;
+      opacity: 0;
+    }
+
+    .hero-social-proof .stars { color: #f59e0b; letter-spacing: 2px; }
+
+    /* ── PRICE BANNER ── */
+    .price-banner {
+      position: relative;
+      z-index: 10;
+      background: linear-gradient(90deg, rgba(99,102,241,0.08), rgba(6,182,212,0.08));
+      border-top: 1px solid rgba(99,102,241,0.15);
+      border-bottom: 1px solid rgba(99,102,241,0.15);
+      padding: 1.2rem 2rem;
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .price-compare {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.9rem;
+    }
+
+    .price-compare .label { color: var(--muted); }
+    .price-compare .old { color: #ef4444; text-decoration: line-through; font-weight: 600; }
+    .price-compare .new { color: var(--green); font-weight: 700; font-size: 1.05rem; }
+    .price-compare .brand { color: var(--mid); }
+
+    /* ── SECTIONS ── */
+    section {
+      position: relative;
+      z-index: 10;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 6rem 2rem;
+    }
+
+    .section-eyebrow {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.8rem;
+    }
+
+    .section-title {
+      font-family: var(--font2);
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 560px;
+      line-height: 1.6;
+      margin-bottom: 3rem;
+    }
+
+    /* ── FEATURES ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(99,102,241,0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+
+    .feature-card:hover::before { opacity: 1; }
+
+    .feature-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .icon-purple { background: rgba(99,102,241,0.15); }
+    .icon-cyan { background: rgba(6,182,212,0.15); }
+    .icon-green { background: rgba(16,185,129,0.15); }
+    .icon-orange { background: rgba(245,158,11,0.15); }
+    .icon-pink { background: rgba(236,72,153,0.15); }
+    .icon-blue { background: rgba(59,130,246,0.15); }
+
+    .feature-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-card p {
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── COMPARISON ── */
+    .comparison-wrap {
+      overflow-x: auto;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th {
+      padding: 1.2rem 1.5rem;
+      text-align: left;
+      font-weight: 700;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+    }
+
+    th:first-child { color: var(--muted); }
+
+    th.highlight-col {
+      background: rgba(99,102,241,0.12);
+      color: var(--accent2);
+      position: relative;
+    }
+
+    th.highlight-col::after {
+      content: '⭐ Best Value';
+      position: absolute;
+      top: -12px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.2rem 0.7rem;
+      border-radius: 99px;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid rgba(14,31,51,0.8);
+      color: var(--mid);
+    }
+
+    td:first-child { color: var(--text); font-weight: 500; }
+
+    tr:last-child td { border-bottom: none; }
+
+    td.highlight-col {
+      background: rgba(99,102,241,0.05);
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .check { color: var(--green); font-size: 1.1rem; }
+    .cross { color: #ef4444; font-size: 1.1rem; }
+
+    /* ── HOW IT WORKS ── */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .step {
+      position: relative;
+      padding: 2rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+
+    .step-num {
+      font-family: var(--font2);
+      font-size: 3rem;
+      font-weight: 700;
+      color: rgba(99,102,241,0.15);
+      line-height: 1;
+      margin-bottom: 0.8rem;
+    }
+
+    .step h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .step p { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
+
+    /* ── PRICING ── */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .pricing-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      position: relative;
+      transition: transform 0.2s;
+    }
+
+    .pricing-card:hover { transform: translateY(-4px); }
+
+    .pricing-card.featured {
+      border-color: var(--accent);
+      background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(6,182,212,0.05));
+      box-shadow: 0 0 60px rgba(99,102,241,0.15);
+    }
+
+    .popular-tag {
+      position: absolute;
+      top: -14px; left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--accent), var(--cyan));
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.3rem 1.2rem;
+      border-radius: 99px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    .plan-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .plan-price {
+      font-family: var(--font2);
+      font-size: 3.5rem;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+
+    .plan-price sup {
+      font-size: 1.2rem;
+      vertical-align: super;
+      font-weight: 400;
+    }
+
+    .plan-price span {
+      font-size: 1rem;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .plan-tagline {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .plan-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      margin-bottom: 2rem;
+    }
+
+    .plan-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.7rem;
+      font-size: 0.88rem;
+      color: var(--mid);
+    }
+
+    .plan-features li .check { flex-shrink: 0; margin-top: 1px; }
+
+    .plan-btn {
+      display: block;
+      text-align: center;
+      padding: 0.85rem;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .plan-btn-primary {
+      background: linear-gradient(135deg, var(--accent), #4f46e5);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(99,102,241,0.3);
+    }
+
+    .plan-btn-primary:hover {
+      box-shadow: 0 6px 30px rgba(99,102,241,0.5);
+      transform: translateY(-1px);
+    }
+
+    .plan-btn-outline {
+      background: transparent;
+      color: var(--mid);
+      border: 1px solid var(--border);
+    }
+
+    .plan-btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    /* ── CTA SECTION ── */
+    .cta-section {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 6rem 2rem;
+      background: radial-gradient(ellipse at center, rgba(99,102,241,0.08) 0%, transparent 70%);
+      border-top: 1px solid rgba(99,102,241,0.1);
+    }
+
+    .cta-section h2 {
+      font-family: var(--font2);
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 1rem;
+    }
+
+    .cta-section p {
+      color: var(--muted);
+      font-size: 1.1rem;
+      max-width: 480px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .cta-note {
+      margin-top: 1.2rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 2.5rem 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    footer a { color: var(--muted); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── GLOW ORBS ── */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.15;
+    }
+
+    .orb-1 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, #6366f1, transparent);
+      top: -200px; left: -100px;
+      animation: orbFloat1 12s ease-in-out infinite;
+    }
+
+    .orb-2 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, #06b6d4, transparent);
+      bottom: 0; right: -100px;
+      animation: orbFloat2 15s ease-in-out infinite;
+    }
+
+    .orb-3 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, #10b981, transparent);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      animation: orbFloat3 18s ease-in-out infinite;
+    }
+
+    @keyframes orbFloat1 {
+      0%, 100% { transform: translate(0,0); }
+      33% { transform: translate(60px, 80px); }
+      66% { transform: translate(-40px, 40px); }
+    }
+
+    @keyframes orbFloat2 {
+      0%, 100% { transform: translate(0,0); }
+      50% { transform: translate(-80px, -60px); }
+    }
+
+    @keyframes orbFloat3 {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.3); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.2rem; }
+      .nav-links { display: none; }
+      .hero { padding: 7rem 1.2rem 3rem; }
+      section { padding: 4rem 1.2rem; }
+      .pricing-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+<!-- BACKGROUND ORBS -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<!-- THREE.JS CANVAS -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">NovaMind ✦</div>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#compare">Compare</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="/chat.html">Try Free</a></li>
+    <li><a href="#pricing" class="nav-cta">Get Started →</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">🎁 7-Day Free Trial — No Credit Card Needed</div>
+
+  <h1>
+    <span class="line1">The AI That's</span>
+    <span class="line2">Actually Yours.</span>
+  </h1>
+
+  <p class="hero-sub">
+    Private AI chat powered by a real GPU. <strong>No data sent to OpenAI.</strong>
+    No rate limits. No $20/month price tag.
+    Just fast, private intelligence for <strong>$5/month.</strong>
+  </p>
+
+  <div class="hero-actions">
+    <!-- REPLACE href WITH YOUR STRIPE PAYMENT LINK -->
+    <a href="#pricing" class="btn-glow">
+      ✦ Start Free — 7 Days on Us
+    </a>
+    <a href="/chat.html" class="btn-outline">
+      ▶ Try Free Demo
+    </a>
+  </div>
+
+  <div class="hero-social-proof">
+    <span class="stars">★★★★★</span>
+    <span>100% private · No OpenAI · Cancel anytime</span>
+  </div>
+</div>
+
+<!-- PRICE COMPARISON BANNER -->
+<div class="price-banner">
+  <div class="price-compare">
+    <span class="brand">ChatGPT</span>
+    <span class="label">costs</span>
+    <span class="old">$20/mo</span>
+  </div>
+  <div class="price-compare">
+    <span class="brand">Claude</span>
+    <span class="label">costs</span>
+    <span class="old">$20/mo</span>
+  </div>
+  <div class="price-compare">
+    <span class="brand">Gemini</span>
+    <span class="label">costs</span>
+    <span class="old">$22/mo</span>
+  </div>
+  <div class="price-compare">
+    <span class="brand">NovaMind</span>
+    <span class="label">costs</span>
+    <span class="new">FREE 7 days → $5/mo ✓</span>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="reveal">
+    <div class="section-eyebrow">Why NovaMind</div>
+    <div class="section-title">Built different. Priced fair.</div>
+    <p class="section-sub">While other AI companies charge $20/month and sell your data, NovaMind runs on a dedicated GPU — privately, fast, and cheap.</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card reveal">
+      <div class="feature-icon icon-purple">🔒</div>
+      <h3>100% Private</h3>
+      <p>Your conversations never leave our local hardware. No OpenAI. No Azure. No logging. Your data stays yours.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon icon-cyan">⚡</div>
+      <h3>No Rate Limits</h3>
+      <p>Chat as much as you want. We run on dedicated GPU hardware — your requests never queue behind millions of others.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon icon-green">💸</div>
+      <h3>$5/Month — Period</h3>
+      <p>Flat rate. No per-message charges. No surprise bills. Cancel anytime. 75% cheaper than ChatGPT Plus.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon icon-orange">🧠</div>
+      <h3>Multiple AI Models</h3>
+      <p>Chat with Llama 3, Vicuna, DeepSeek Coder and more. Switch models instantly based on your task.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon icon-pink">🎯</div>
+      <h3>Specialized Modes</h3>
+      <p>Coding assistant, writing helper, data analysis, document summarization — all included in one subscription.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-icon icon-blue">🔌</div>
+      <h3>Developer API</h3>
+      <p>On the API plan, integrate NovaMind directly into your apps. REST API, JSON responses, OpenAI-compatible format.</p>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON TABLE -->
+<section id="compare" style="padding-top: 2rem;">
+  <div class="reveal">
+    <div class="section-eyebrow">The Numbers</div>
+    <div class="section-title">See how we stack up</div>
+    <p class="section-sub">Same quality AI. A fraction of the price.</p>
+  </div>
+
+  <div class="comparison-wrap reveal">
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>ChatGPT Plus</th>
+          <th>Claude Pro</th>
+          <th class="highlight-col">NovaMind ✦</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Monthly Price</td>
+          <td>$20/month</td>
+          <td>$20/month</td>
+          <td class="highlight-col">$5/month</td>
+        </tr>
+        <tr>
+          <td>Data Privacy</td>
+          <td><span class="cross">✗</span> Sent to OpenAI</td>
+          <td><span class="cross">✗</span> Sent to Anthropic</td>
+          <td class="highlight-col"><span class="check">✓</span> 100% Local</td>
+        </tr>
+        <tr>
+          <td>Rate Limits</td>
+          <td><span class="cross">✗</span> Yes, strict</td>
+          <td><span class="cross">✗</span> Yes, strict</td>
+          <td class="highlight-col"><span class="check">✓</span> None</td>
+        </tr>
+        <tr>
+          <td>Developer API</td>
+          <td>Extra cost</td>
+          <td>Extra cost</td>
+          <td class="highlight-col"><span class="check">✓</span> Included</td>
+        </tr>
+        <tr>
+          <td>Multiple Models</td>
+          <td>Limited</td>
+          <td>Claude only</td>
+          <td class="highlight-col"><span class="check">✓</span> 4+ models</td>
+        </tr>
+        <tr>
+          <td>Cancel Anytime</td>
+          <td><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+          <td class="highlight-col"><span class="check">✓</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section>
+  <div class="reveal">
+    <div class="section-eyebrow">How It Works</div>
+    <div class="section-title">Up and running in 60 seconds</div>
+    <p class="section-sub">No app to install. No configuration. Just sign up and start chatting.</p>
+  </div>
+
+  <div class="steps reveal">
+    <div class="step">
+      <div class="step-num">01</div>
+      <h3>Pick a plan</h3>
+      <p>Choose Personal ($5/mo) for chatting or Developer ($15/mo) for API access. 7-day free trial, then the plan price. No surprises.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <h3>Get instant access</h3>
+      <p>After payment you get immediate access to the web chat. No waiting, no approval, no setup required.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <h3>Chat privately</h3>
+      <p>Open the chat, pick your AI model, and start. Your conversations are processed locally and never stored.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="reveal" style="text-align: center; margin-bottom: 3rem;">
+    <div class="section-eyebrow">Pricing</div>
+    <div class="section-title">Simple. Honest. Cheap.</div>
+    <p class="section-sub" style="margin: 0 auto;">No tricks. No hidden fees. Cancel anytime — no questions asked.</p>
+  </div>
+
+  <div class="pricing-grid">
+    <!-- PERSONAL PLAN -->
+    <div class="pricing-card reveal">
+      <div class="plan-badge">Personal</div>
+      <div class="plan-price"><sup>$</sup>5<span>/month</span></div>
+      <div class="plan-tagline">For anyone who wants private, affordable AI chat</div>
+      <ul class="plan-features">
+        <li><span class="check">✓</span> Unlimited AI chat messages</li>
+        <li><span class="check">✓</span> 4 AI models (Llama 3, Vicuna, + more)</li>
+        <li><span class="check">✓</span> 100% private — zero data logging</li>
+        <li><span class="check">✓</span> No rate limits, ever</li>
+        <li><span class="check">✓</span> Document summarization</li>
+        <li><span class="check">✓</span> Cancel anytime</li>
+      </ul>
+      <!-- REPLACE WITH YOUR STRIPE PERSONAL PLAN LINK -->
+      <a href="https://buy.stripe.com/28EfZiela7cpdkz9k5f7i01" class="plan-btn plan-btn-outline" id="personal-btn">
+        Start Free Trial →
+      </a>
+    </div>
+
+    <!-- PRO PLAN (FEATURED) -->
+    <div class="pricing-card featured reveal">
+      <div class="popular-tag">Most Popular</div>
+      <div class="plan-badge">Developer</div>
+      <div class="plan-price"><sup>$</sup>15<span>/month</span></div>
+      <div class="plan-tagline">For devs who want API access to build AI apps</div>
+      <ul class="plan-features">
+        <li><span class="check">✓</span> Everything in Personal</li>
+        <li><span class="check">✓</span> REST API access (all endpoints)</li>
+        <li><span class="check">✓</span> 3 API keys</li>
+        <li><span class="check">✓</span> /generate, /embed, /summarize</li>
+        <li><span class="check">✓</span> DeepSeek Coder 33B access</li>
+        <li><span class="check">✓</span> Priority support via email</li>
+      </ul>
+      <!-- REPLACE WITH YOUR STRIPE DEVELOPER PLAN LINK -->
+      <a href="https://buy.stripe.com/aFa7sM6SI7cp80fdAlf7i02" class="plan-btn plan-btn-primary" id="developer-btn">
+        ✦ Start Free Trial →
+      </a>
+    </div>
+
+    <!-- ENTERPRISE -->
+    <div class="pricing-card reveal">
+      <div class="plan-badge">Enterprise</div>
+      <div class="plan-price" style="font-size: 2.2rem;">Custom</div>
+      <div class="plan-tagline">For agencies and companies with serious AI needs</div>
+      <ul class="plan-features">
+        <li><span class="check">✓</span> Dedicated GPU allocation</li>
+        <li><span class="check">✓</span> Unlimited API keys</li>
+        <li><span class="check">✓</span> Custom model fine-tuning</li>
+        <li><span class="check">✓</span> White-label option</li>
+        <li><span class="check">✓</span> SLA guarantee</li>
+        <li><span class="check">✓</span> Slack/phone support</li>
+      </ul>
+      <a href="mailto:hello@novamind.ai" class="plan-btn plan-btn-outline">
+        Contact Us →
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section">
+  <h2>7 Days Free.<br/>Then just $5/month.</h2>
+  <p>Try NovaMind free for 7 days. No credit card required to start. Then just $5/month — 75% cheaper than ChatGPT.</p>
+  <a href="https://buy.stripe.com/28EfZiela7cpdkz9k5f7i01" class="btn-glow" style="display: inline-flex;">
+    ✦ Start Free for 7 Days
+  </a>
+  <div class="cta-note">7-day free trial · Then $5/month · Cancel anytime · Secure payment via Stripe</div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p style="margin-bottom: 0.5rem;">
+    <a href="#">Privacy Policy</a> &nbsp;·&nbsp;
+    <a href="#">Terms of Service</a> &nbsp;·&nbsp;
+    <a href="mailto:hello@novamind.ai">Contact</a>
+  </p>
+  <p>© 2025 NovaMind · Built with a real GPU · <span style="color: #10b981;">Your data never leaves our machine</span></p>
+</footer>
+
+<!-- THREE.JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+// ─── THREE.JS NEURAL NETWORK BACKGROUND ───────────────────────
+(function() {
+  const canvas = document.getElementById('bg-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x000000, 0);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.z = 30;
+
+  // Particles
+  const count = 200;
+  const positions = new Float32Array(count * 3);
+  const velocities = [];
+  const nodeData = [];
+
+  for (let i = 0; i < count; i++) {
+    const x = (Math.random() - 0.5) * 80;
+    const y = (Math.random() - 0.5) * 60;
+    const z = (Math.random() - 0.5) * 40;
+    positions[i * 3]     = x;
+    positions[i * 3 + 1] = y;
+    positions[i * 3 + 2] = z;
+    velocities.push(new THREE.Vector3(
+      (Math.random() - 0.5) * 0.03,
+      (Math.random() - 0.5) * 0.03,
+      (Math.random() - 0.5) * 0.015
+    ));
+    nodeData.push({ x, y, z });
+  }
+
+  const pGeo = new THREE.BufferGeometry();
+  pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+  const pMat = new THREE.PointsMaterial({
+    color: 0x6366f1,
+    size: 0.25,
+    transparent: true,
+    opacity: 0.8,
+    sizeAttenuation: true,
+  });
+
+  const particles = new THREE.Points(pGeo, pMat);
+  scene.add(particles);
+
+  // Connection lines
+  const maxConnections = 600;
+  const linePositions = new Float32Array(maxConnections * 6);
+  const lineGeo = new THREE.BufferGeometry();
+  lineGeo.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+  const lineMat = new THREE.LineSegments(
+    lineGeo,
+    new THREE.LineBasicMaterial({ color: 0x6366f1, transparent: true, opacity: 0.12 })
+  );
+  scene.add(lineMat);
+
+  // Mouse interaction
+  const mouse = { x: 0, y: 0 };
+  document.addEventListener('mousemove', (e) => {
+    mouse.x = (e.clientX / window.innerWidth - 0.5) * 0.5;
+    mouse.y = -(e.clientY / window.innerHeight - 0.5) * 0.5;
+  });
+
+  let connectionCount = 0;
+  let frame = 0;
+
+  function animate() {
+    requestAnimationFrame(animate);
+    frame++;
+
+    const pos = pGeo.attributes.position.array;
+
+    // Update particles
+    for (let i = 0; i < count; i++) {
+      pos[i * 3]     += velocities[i].x;
+      pos[i * 3 + 1] += velocities[i].y;
+      pos[i * 3 + 2] += velocities[i].z;
+
+      // Bounds
+      if (Math.abs(pos[i * 3])     > 40) velocities[i].x *= -1;
+      if (Math.abs(pos[i * 3 + 1]) > 30) velocities[i].y *= -1;
+      if (Math.abs(pos[i * 3 + 2]) > 20) velocities[i].z *= -1;
+    }
+    pGeo.attributes.position.needsUpdate = true;
+
+    // Update connections (every 2 frames for perf)
+    if (frame % 2 === 0) {
+      connectionCount = 0;
+      const linePos = lineGeo.attributes.position.array;
+
+      for (let i = 0; i < count && connectionCount < maxConnections - 1; i++) {
+        for (let j = i + 1; j < count && connectionCount < maxConnections - 1; j++) {
+          const dx = pos[i * 3] - pos[j * 3];
+          const dy = pos[i * 3 + 1] - pos[j * 3 + 1];
+          const dz = pos[i * 3 + 2] - pos[j * 3 + 2];
+          const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+          if (dist < 12) {
+            linePos[connectionCount * 6]     = pos[i * 3];
+            linePos[connectionCount * 6 + 1] = pos[i * 3 + 1];
+            linePos[connectionCount * 6 + 2] = pos[i * 3 + 2];
+            linePos[connectionCount * 6 + 3] = pos[j * 3];
+            linePos[connectionCount * 6 + 4] = pos[j * 3 + 1];
+            linePos[connectionCount * 6 + 5] = pos[j * 3 + 2];
+            connectionCount++;
+          }
+        }
+      }
+      lineGeo.setDrawRange(0, connectionCount * 2);
+      lineGeo.attributes.position.needsUpdate = true;
+    }
+
+    // Mouse parallax
+    camera.position.x += (mouse.x * 10 - camera.position.x) * 0.02;
+    camera.position.y += (mouse.y * 6 - camera.position.y) * 0.02;
+    camera.lookAt(scene.position);
+
+    // Slow rotation
+    particles.rotation.y += 0.0005;
+    lineMat.rotation.y   += 0.0005;
+
+    renderer.render(scene, camera);
+  }
+
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+})();
+
+// ─── SCROLL REVEAL ──────────────────────────────────────────
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+reveals.forEach(el => observer.observe(el));
+
+// ─── SMOOTH SCROLL ──────────────────────────────────────────
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const href = a.getAttribute('href');
+    if (href === '#') return;
+    e.preventDefault();
+    document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+</script>
+</body>
+</html>
