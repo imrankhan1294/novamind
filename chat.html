@@ -28,14 +28,14 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
 
-    /* ── LAYOUT ── */
+    /* ââ LAYOUT ââ */
     .app {
       display: flex;
       height: 100vh;
       overflow: hidden;
     }
 
-    /* ── SIDEBAR ── */
+    /* ââ SIDEBAR ââ */
     .sidebar {
       width: 260px;
       background: var(--sidebar);
@@ -151,7 +151,7 @@
       border-radius: 50%;
     }
 
-    /* ── MAIN CHAT ── */
+    /* ââ MAIN CHAT ââ */
     .main {
       flex: 1;
       display: flex;
@@ -386,7 +386,7 @@
       50% { transform: translateY(-4px); opacity: 1; }
     }
 
-    /* ── INPUT AREA ── */
+    /* ââ INPUT AREA ââ */
     .input-area {
       padding: 1rem 1.5rem 1.5rem;
       background: rgba(2,4,8,0.9);
@@ -449,7 +449,7 @@
       color: var(--muted);
     }
 
-    /* ── AUTH OVERLAY ── */
+    /* ââ AUTH OVERLAY ââ */
     .auth-overlay {
       position: fixed;
       inset: 0;
@@ -528,7 +528,7 @@
 
     .auth-link a { color: var(--accent2); }
 
-    /* ── RESPONSIVE ── */
+    /* ââ RESPONSIVE ââ */
     @media (max-width: 768px) {
       .sidebar { display: none; }
       .suggestions { grid-template-columns: 1fr; }
@@ -540,13 +540,13 @@
 <!-- AUTH OVERLAY -->
 <div class="auth-overlay" id="auth-overlay">
   <div class="auth-card">
-    <div class="auth-logo">NovaMind ✦</div>
+    <div class="auth-logo">NovaMind â¦</div>
     <div class="auth-sub">Enter your API key to access your private AI</div>
     <input type="password" class="auth-input" id="key-input" placeholder="Enter your API key (e.g. test123)"/>
     <div class="auth-error" id="auth-error">Invalid API key. Check your email for your key.</div>
-    <button class="auth-btn" onclick="authenticate()">Access NovaMind →</button>
+    <button class="auth-btn" onclick="authenticate()">Access NovaMind â</button>
     <div class="auth-link">
-      Don't have a key? <a href="/index.html#pricing">Get one for $5/month →</a>
+      Don't have a key? <a href="/index.html#pricing">Get one for $5/month â</a>
     </div>
   </div>
 </div>
@@ -556,16 +556,16 @@
   <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="sidebar-header">
-      <div class="logo">NovaMind ✦</div>
+      <div class="logo">NovaMind â¦</div>
       <button class="new-chat-btn" onclick="newChat()">+ New</button>
     </div>
 
     <div class="model-section">
       <div class="model-label">AI Model</div>
       <select class="model-select" id="model-select">
-        <option value="llama3">Llama 3 — General</option>
-        <option value="vicuna:13b">Vicuna 13B — Chat</option>
-        <option value="deepseek-coder:33b">DeepSeek Coder — Code</option>
+        <option value="llama3">Llama 3 â General</option>
+        <option value="vicuna:13b">Vicuna 13B â Chat</option>
+        <option value="deepseek-coder:33b">DeepSeek Coder â Code</option>
         <option value="nomic-embed-text">nomic-embed-text</option>
       </select>
     </div>
@@ -577,7 +577,7 @@
     <div class="sidebar-footer">
       <div class="plan-badge">
         <div class="plan-dot"></div>
-        <span>Connected · Local GPU</span>
+        <span>Connected Â· Local GPU</span>
       </div>
     </div>
   </div>
@@ -588,28 +588,28 @@
       <div class="topbar-title" id="chat-title">New Conversation</div>
       <div class="topbar-status">
         <div class="status-dot"></div>
-        <span>Private · Local · Secure</span>
+        <span>Private Â· Local Â· Secure</span>
       </div>
     </div>
 
     <div class="messages" id="messages">
       <!-- Welcome screen -->
       <div class="welcome" id="welcome-screen">
-        <div class="welcome-icon">✦</div>
+        <div class="welcome-icon">â¦</div>
         <h2>NovaMind is ready</h2>
-        <p>Your private AI — powered by a real GPU. No data leaves this machine. Ask me anything.</p>
+        <p>Your private AI â powered by a real GPU. No data leaves this machine. Ask me anything.</p>
         <div class="suggestions">
           <button class="suggestion" onclick="sendSuggestion('Explain quantum computing in simple terms')">
-            🔬 Explain quantum computing
+            ð¬ Explain quantum computing
           </button>
           <button class="suggestion" onclick="sendSuggestion('Write a Python function to sort a list of dictionaries')">
-            💻 Write Python code
+            ð» Write Python code
           </button>
           <button class="suggestion" onclick="sendSuggestion('What are the top 5 ways to grow a SaaS business?')">
-            📈 Grow a SaaS business
+            ð Grow a SaaS business
           </button>
           <button class="suggestion" onclick="sendSuggestion('Write a professional cold email for a B2B software company')">
-            ✉️ Write a cold email
+            âï¸ Write a cold email
           </button>
         </div>
       </div>
@@ -624,25 +624,25 @@
           onkeydown="handleKey(event)"
           oninput="autoResize(this)"
         ></textarea>
-        <button class="send-btn" id="send-btn" onclick="sendMessage()">➤</button>
+        <button class="send-btn" id="send-btn" onclick="sendMessage()">â¤</button>
       </div>
       <div class="input-footer">
-        <span>NovaMind · 100% private · <span id="latency-display"></span></span>
-        <span>Enter to send · Shift+Enter for newline</span>
+        <span>NovaMind Â· 100% private Â· <span id="latency-display"></span></span>
+        <span>Enter to send Â· Shift+Enter for newline</span>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-// ─── CONFIG ────────────────────────────────────────────────
+// âââ CONFIG ââââââââââââââââââââââââââââââââââââââââââââââââ
 // IMPORTANT: Change this to your public Cloudflare Tunnel URL when deployed
 // For local testing, keep it as localhost:8000
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:8000'
-  : 'https://YOUR_TUNNEL_URL_HERE'; // <- replace after Cloudflare Tunnel setup
+  : 'https://james-referenced-thrown-oaks.trycloudflare.com'; // <- replace after Cloudflare Tunnel setup
 
-// ─── AUTH ───────────────────────────────────────────────────
+// âââ AUTH âââââââââââââââââââââââââââââââââââââââââââââââââââ
 let apiKey = localStorage.getItem('nm_key') || '';
 
 function checkAuth() {
@@ -683,7 +683,7 @@ document.getElementById('key-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') authenticate();
 });
 
-// ─── CHAT STATE ─────────────────────────────────────────────
+// âââ CHAT STATE âââââââââââââââââââââââââââââââââââââââââââââ
 let messages = [];
 let isLoading = false;
 let totalChats = 0;
@@ -708,14 +708,14 @@ function newChat() {
 
   messagesEl.innerHTML = `
     <div class="welcome" id="welcome-screen">
-      <div class="welcome-icon">✦</div>
+      <div class="welcome-icon">â¦</div>
       <h2>NovaMind is ready</h2>
-      <p>Your private AI — powered by a real GPU. No data leaves this machine. Ask me anything.</p>
+      <p>Your private AI â powered by a real GPU. No data leaves this machine. Ask me anything.</p>
       <div class="suggestions">
-        <button class="suggestion" onclick="sendSuggestion('Explain quantum computing in simple terms')">🔬 Explain quantum computing</button>
-        <button class="suggestion" onclick="sendSuggestion('Write a Python function to sort a list of dictionaries')">💻 Write Python code</button>
-        <button class="suggestion" onclick="sendSuggestion('What are the top 5 ways to grow a SaaS business?')">📈 Grow a SaaS business</button>
-        <button class="suggestion" onclick="sendSuggestion('Write a professional cold email for a B2B software company')">✉️ Write a cold email</button>
+        <button class="suggestion" onclick="sendSuggestion('Explain quantum computing in simple terms')">ð¬ Explain quantum computing</button>
+        <button class="suggestion" onclick="sendSuggestion('Write a Python function to sort a list of dictionaries')">ð» Write Python code</button>
+        <button class="suggestion" onclick="sendSuggestion('What are the top 5 ways to grow a SaaS business?')">ð Grow a SaaS business</button>
+        <button class="suggestion" onclick="sendSuggestion('Write a professional cold email for a B2B software company')">âï¸ Write a cold email</button>
       </div>
     </div>`;
   document.getElementById('chat-title').textContent = 'New Conversation';
@@ -754,13 +754,13 @@ function addMessage(role, content, latency) {
     .replace(/```(\w*)\n?([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
     .replace(/\n/g, '<br/>');
 
-  const latencyText = latency ? ` · ${latency}s` : '';
+  const latencyText = latency ? ` Â· ${latency}s` : '';
 
   div.innerHTML = `
-    <div class="msg-avatar ${role}">${role === 'ai' ? '✦' : '👤'}</div>
+    <div class="msg-avatar ${role}">${role === 'ai' ? 'â¦' : 'ð¤'}</div>
     <div class="msg-content">
       <div class="msg-bubble">${formattedContent}</div>
-      <div class="msg-meta">${role === 'ai' ? 'NovaMind' : 'You'} · ${time}${latencyText}</div>
+      <div class="msg-meta">${role === 'ai' ? 'NovaMind' : 'You'} Â· ${time}${latencyText}</div>
     </div>`;
 
   messagesEl.appendChild(div);
@@ -783,7 +783,7 @@ function showTyping() {
   div.className = 'message ai';
   div.id = 'typing-msg';
   div.innerHTML = `
-    <div class="msg-avatar ai">✦</div>
+    <div class="msg-avatar ai">â¦</div>
     <div class="msg-content">
       <div class="typing-indicator">
         <div class="typing-dot"></div>
@@ -834,11 +834,11 @@ async function sendMessage() {
     removeTyping();
 
     if (response.status === 401) {
-      addMessage('ai', '⚠️ Invalid API key. Please refresh the page and re-enter your key.');
+      addMessage('ai', 'â ï¸ Invalid API key. Please refresh the page and re-enter your key.');
       localStorage.removeItem('nm_key');
     } else if (!response.ok) {
       const err = await response.json();
-      addMessage('ai', `⚠️ Error: ${err.detail || 'Something went wrong. Make sure the NovaMind server is running.'}`);
+      addMessage('ai', `â ï¸ Error: ${err.detail || 'Something went wrong. Make sure the NovaMind server is running.'}`);
     } else {
       const data = await response.json();
       const latency = ((Date.now() - start) / 1000).toFixed(1);
@@ -847,7 +847,7 @@ async function sendMessage() {
     }
   } catch (e) {
     removeTyping();
-    addMessage('ai', '⚠️ Cannot connect to NovaMind server. Make sure START_HERE.bat is running, then refresh.');
+    addMessage('ai', 'â ï¸ Cannot connect to NovaMind server. Make sure START_HERE.bat is running, then refresh.');
   }
 
   isLoading = false;
